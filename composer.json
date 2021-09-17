@@ -1,0 +1,13 @@
+{
+    "require": {
+        "illuminate/database": "^5.3.0",
+        "monolog/monolog": "^1.23",
+        "htmlburger/carbon-fields": "^3.0",
+        "php": "^7.0.8",
+        "yahnis-elsts/plugin-update-checker": "^4.7",
+        "brick/phonenumber": "^0.1.0",
+        "nesbot/carbon": "^2.25",
+        "nahid/jsonq": "^6.0",
+        "fzaninotto/faker": "^1.9"
+    }
+}
