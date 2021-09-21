@@ -5,7 +5,7 @@ namespace Sejoli_Rest_Api\Rest;
  * Main class responsible for rest api functions
  * @since   1.0.0
  */
-class Products extends \Sejoli_Rest_Api\Rest {
+class Donation extends \Sejoli_Rest_Api\Rest {
 
 	/**
 	 * Register class routes
@@ -15,30 +15,37 @@ class Products extends \Sejoli_Rest_Api\Rest {
 	public function do_register() {
 
 		$routes = array(
-			'product' => array(
-				'endpoint'			  => '/products',
+			'sales' => array(
+				'endpoint'			  => '/donation',
 	    		'methods'		      => 'GET',
-	    		'callback'			  => array( $this, 'get_products_data' ),
+	    		'callback'			  => array( $this, 'get_donation_data' ),
 	    		'permission_callback' => '__return_true',
 	    	)
 	    );
 
 	    self::register_routes( $routes );
-
+	
 	}
 
 	/**
-	 * Get product data rest request
+	 * Get donation data rest request
 	 * @param 	$data data from api request
 	 * @return  array|WP_Error
 	 * @since   1.0.0
 	 */
-	public function get_products_data() {
+	public function get_donation_data( $data ) {
 
 		$args = array( 
 		    'post_type'   => 'sejoli-product', 
 		    'post_status' => 'publish', 
-		    'nopaging'    => true 
+		    'nopaging'    => true ,
+		    'meta_query'  => array(
+		        array(
+		            'key'     => '_donation_active',
+		            'value'   => 'yes',
+		            'compare' => '=',
+		        ),
+		    ),
 		);
 
 	    $query = new \WP_Query($args);
@@ -49,8 +56,33 @@ class Products extends \Sejoli_Rest_Api\Rest {
 			$output = array();
 		    foreach( $posts as $post ) {
 		        
-		        $product_id              = $post->ID;
-		        $product                 = sejolisa_get_product($product_id);
+		        $product_id   = $post->ID;
+		        $product      = sejolisa_get_product($product_id);
+		        $progress     = sejolisa_get_donation_progress($product_id);
+		        $donatur_list = sejolisa_get_donatur_list($product_id);
+
+		        foreach($donatur_list as $list) :
+
+		        	$donatur_name   = $list['name'];
+	                $donatur_time   = $list['human_time'];
+	                $total_donation = $list['total'];
+
+	                if($list !== ""):
+		                
+		                $donatur[] = [
+		                    'name'  => $donatur_name,
+		                    'time' 	=> $donatur_time,
+							'total' => $total_donation
+		                ];
+		            
+		            else:
+		            
+		            	$donatur = [];
+		            
+		            endif;
+
+                endforeach;
+
 		        $featured_img_url        = get_the_post_thumbnail_url($product_id, 'full'); 
 		        $product_active          = boolval(carbon_get_post_meta($product_id, 'enable_sale'));
 				$product_price           = floatval(apply_filters( 'sejoli/product/price', 0, $post));
@@ -61,34 +93,6 @@ class Products extends \Sejoli_Rest_Api\Rest {
 				$harga_biaya_awal        = carbon_get_post_meta($product_id, 'subscription_signup_fee');
 				$product_enable_quantity = boolval(carbon_get_post_meta($product_id, 'enable_quantity'));
 				$product_access_code 	 = carbon_get_post_meta($product_id, 'coupon_access_checkout');
-	            $variants                = carbon_get_post_meta($product_id, 'product_variants');
-
-	            if (isset($variants[0]['variant'])):
-
-		            foreach( $variants[0]['variant'] as $i => $_variant_type ) :
-
-		                $variant_name          = $_variant_type['name'];
-		                $variant_price         = floatval($_variant_type['extra_price']);
-		                $display_variant_price = sejolisa_price_format($variant_price);
-
-		                if($_variant_type !== ""):
-			                
-			                $product_variants[] = [
-			                    'label' 	=> $variant_name,
-			                    'price' 	=> (0.0 === $variant_price) ? NULL : $display_variant_price,
-								'raw_price' => $variant_price,
-								'weight'	=> intval($_variant_type['extra_weight'])
-			                ];
-			           
-			            else:
-			           
-			            	$product_variants = [];
-			           
-			            endif;
-
-		            endforeach;
-
-		        endif;
 
 		        $output[] = array( 
 		        	'id' 				=> $product_id, 
@@ -104,28 +108,13 @@ class Products extends \Sejoli_Rest_Api\Rest {
 		        	'permalink' 		=> $post->guid,
 		        	'status' 			=> $post->post_status,
 		        	'product_thumbnail' => $featured_img_url,
-		        	'product_active' 	=> $product_active,
-		        	'product_weight' 	=> $product_weight,
-		        	'product_price' 	=> sejolisa_price_format( $product_price ),
-		        	'product_raw_price' => $product_price,
-		        	'product_type' 		=> $product_type,
-		        	'payment_type' 		=> $payment_type,
-		        	'biaya_awal' 		=> $biaya_awal,
-		        	'harga_biaya_awal' 	=> $harga_biaya_awal,
-		        	'subscription'		=> $product->subscription,
-		        	'license'			=> $product->license,
 		        	'affiliate'			=> $product->affiliate,
-		        	'files'				=> $product->files,
-		        	'reward_point'		=> $product->reward_point,
-		        	'cashback'			=> $product->cashback,
 		        	'donation'			=> $product->donation,
-		        	'enable_quantity' 	=> $product_enable_quantity,
-		        	'access_code' 		=> $product_access_code,
-		        	'variants' 			=> array(
-		        								'type'    => isset($variants[0]['_type']) ? $variants[0]['_type'] : '',
-		        								'name'    => isset($variants[0]['name']) ? $variants[0]['name'] : '',
-		        								'variant' => isset($product_variants) ? $product_variants : ''
-		        							)
+		        	'donation_progress' => array(
+		        								'percentage' => $progress['percent'].'%',
+		        								'total'	     => $progress['total']
+		        							),
+		        	'donation_users'    => $donatur
 		        );
 		    
 		    }
@@ -136,6 +125,6 @@ class Products extends \Sejoli_Rest_Api\Rest {
 
 		return $this->respond_error();
 
-	}
+	}     
 
 }

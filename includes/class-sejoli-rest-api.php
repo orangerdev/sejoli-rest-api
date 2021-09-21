@@ -120,6 +120,7 @@ class Sejoli_Rest_Api {
 		require_once SEJOLI_REST_API_DIR . 'rest/products.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/sales.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/affiliates.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/donation.php';
 
 		/**
 		 * The class responsible for defining CLI command and function
@@ -213,6 +214,9 @@ class Sejoli_Rest_Api {
 
 		$affiliates = new Sejoli_Rest_Api\Rest\Affiliates();
 		$this->loader->add_action( 'rest_api_init',	$affiliates, 'do_register', 10 );
+
+		$donation = new Sejoli_Rest_Api\Rest\Donation();
+		$this->loader->add_action( 'rest_api_init',	$donation, 'do_register', 10 );
 
 		// $store_courier = new SejoliCOD\Rest\StoreCourier();
 		// $this->loader->add_action( 'rest_api_init',	$store_courier, 'do_register', 10 );
