@@ -218,12 +218,6 @@ class Sejoli_Rest_Api {
 		$donation = new Sejoli_Rest_Api\Rest\Donation();
 		$this->loader->add_action( 'rest_api_init',	$donation, 'do_register', 10 );
 
-		// $store_courier = new SejoliCOD\Rest\StoreCourier();
-		// $this->loader->add_action( 'rest_api_init',	$store_courier, 'do_register', 10 );
-
-		// $order = new SejoliCOD\Rest\Order();
-		// $this->loader->add_action( 'rest_api_init',	$order, 'do_register', 10 );
-
 	}
 
 	/**
