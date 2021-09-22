@@ -76,8 +76,6 @@ class Sejoli_Rest_Api {
 
 		$this->load_dependencies();
 		$this->set_locale();
-		$this->define_admin_hooks();
-		$this->define_public_hooks();
 		$this->define_rest_hooks();
 
 	}
@@ -133,17 +131,6 @@ class Sejoli_Rest_Api {
 		 */
 		require_once SEJOLI_REST_API_DIR . 'includes/class-sejoli-rest-api-api.php';
 
-		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once SEJOLI_REST_API_DIR . 'admin/class-sejoli-rest-api-admin.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once SEJOLI_REST_API_DIR . 'public/class-sejoli-rest-api-public.php';
-
 		$this->loader = new Sejoli_Rest_Api_Loader();
 
 	}
@@ -162,38 +149,6 @@ class Sejoli_Rest_Api {
 		$plugin_i18n = new Sejoli_Rest_Api_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
-	}
-
-	/**
-	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_admin_hooks() {
-
-		$admin = new Sejoli_Rest_Api\Admin( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_scripts' );
-
-	}
-
-	/**
-	 * Register all of the hooks related to the public-facing functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_public_hooks() {
-
-		$public = new Sejoli_Rest_Api\Front( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $public, 'enqueue_scripts' );
 
 	}
 
@@ -226,7 +181,9 @@ class Sejoli_Rest_Api {
 	 * @since    1.0.0
 	 */
 	public function run() {
+
 		$this->loader->run();
+
 	}
 
 	/**
@@ -237,7 +194,9 @@ class Sejoli_Rest_Api {
 	 * @return    string    The name of the plugin.
 	 */
 	public function get_plugin_name() {
+
 		return $this->plugin_name;
+
 	}
 
 	/**
@@ -247,7 +206,9 @@ class Sejoli_Rest_Api {
 	 * @return    Sejoli_Rest_Api_Loader    Orchestrates the hooks of the plugin.
 	 */
 	public function get_loader() {
+
 		return $this->loader;
+
 	}
 
 	/**
@@ -257,7 +218,9 @@ class Sejoli_Rest_Api {
 	 * @return    string    The version number of the plugin.
 	 */
 	public function get_version() {
+
 		return $this->version;
+
 	}
 
 }
