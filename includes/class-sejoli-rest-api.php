@@ -76,8 +76,6 @@ class Sejoli_Rest_Api {
 
 		$this->load_dependencies();
 		$this->set_locale();
-		$this->define_admin_hooks();
-		$this->define_public_hooks();
 		$this->define_rest_hooks();
 
 	}
@@ -119,6 +117,8 @@ class Sejoli_Rest_Api {
 		require_once SEJOLI_REST_API_DIR . 'rest/main.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/products.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/sales.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/order.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/license.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/affiliates.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/donation.php';
 
@@ -132,17 +132,6 @@ class Sejoli_Rest_Api {
 		 * The class responsible for defining API related functions.
 		 */
 		require_once SEJOLI_REST_API_DIR . 'includes/class-sejoli-rest-api-api.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once SEJOLI_REST_API_DIR . 'admin/class-sejoli-rest-api-admin.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once SEJOLI_REST_API_DIR . 'public/class-sejoli-rest-api-public.php';
 
 		$this->loader = new Sejoli_Rest_Api_Loader();
 
@@ -166,38 +155,6 @@ class Sejoli_Rest_Api {
 	}
 
 	/**
-	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_admin_hooks() {
-
-		$admin = new Sejoli_Rest_Api\Admin( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_scripts' );
-
-	}
-
-	/**
-	 * Register all of the hooks related to the public-facing functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_public_hooks() {
-
-		$public = new Sejoli_Rest_Api\Front( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $public, 'enqueue_scripts' );
-
-	}
-
-	/**
 	 * Register all of the hooks related to the REST-API functionality
 	 * of the plugin.
 	 *
@@ -212,17 +169,17 @@ class Sejoli_Rest_Api {
 		$sales = new Sejoli_Rest_Api\Rest\Sales();
 		$this->loader->add_action( 'rest_api_init',	$sales, 'do_register', 10 );
 
+		$order = new Sejoli_Rest_Api\Rest\Order();
+		$this->loader->add_action( 'rest_api_init',	$order, 'do_register', 10 );
+
+		$license = new Sejoli_Rest_Api\Rest\License();
+		$this->loader->add_action( 'rest_api_init',	$license, 'do_register', 10 );
+
 		$affiliates = new Sejoli_Rest_Api\Rest\Affiliates();
 		$this->loader->add_action( 'rest_api_init',	$affiliates, 'do_register', 10 );
 
 		$donation = new Sejoli_Rest_Api\Rest\Donation();
 		$this->loader->add_action( 'rest_api_init',	$donation, 'do_register', 10 );
-
-		// $store_courier = new SejoliCOD\Rest\StoreCourier();
-		// $this->loader->add_action( 'rest_api_init',	$store_courier, 'do_register', 10 );
-
-		// $order = new SejoliCOD\Rest\Order();
-		// $this->loader->add_action( 'rest_api_init',	$order, 'do_register', 10 );
 
 	}
 
@@ -232,7 +189,9 @@ class Sejoli_Rest_Api {
 	 * @since    1.0.0
 	 */
 	public function run() {
+
 		$this->loader->run();
+
 	}
 
 	/**
@@ -243,7 +202,9 @@ class Sejoli_Rest_Api {
 	 * @return    string    The name of the plugin.
 	 */
 	public function get_plugin_name() {
+
 		return $this->plugin_name;
+
 	}
 
 	/**
@@ -253,7 +214,9 @@ class Sejoli_Rest_Api {
 	 * @return    Sejoli_Rest_Api_Loader    Orchestrates the hooks of the plugin.
 	 */
 	public function get_loader() {
+
 		return $this->loader;
+
 	}
 
 	/**
@@ -263,7 +226,9 @@ class Sejoli_Rest_Api {
 	 * @return    string    The version number of the plugin.
 	 */
 	public function get_version() {
+
 		return $this->version;
+
 	}
 
 }

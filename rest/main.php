@@ -62,18 +62,51 @@ class Rest {
 	 * @since    1.0.0
 	 * @return   WP_Error
 	 */
-	public static function respond_error( $type = NULL ) {
+	public static function respond_error( $type = NULL, $message = NULL ) {
 
 		if( $type == 'unauthorized' ) {
 
-			return new \WP_Error( 'invalid-access', 'Unauthorized access', array( 'status' => 401 ) );
+			return new \WP_REST_Response(
+				array(
+					'status'  => false,
+					'code'    => 401,
+					'message' => 'invalid-auth - Forbidden Access',
+					'data'	  => array()
+				)
+			);
 
 		} elseif( $type == 'forbidden' ) {
 
-			return new \WP_Error( 'invalid-access', 'Forbidden access', array( 'status' => 403 ) );
-		}
+			return new \WP_REST_Response(
+				array(
+					'status'  => false,
+					'code'    => 403,
+					'message' => 'invalid-access - Forbidden Access',
+					'data'	  => array()
+				)
+			);
+		} elseif( $type == 'invalid-response' ) {
 
-		return new \WP_Error( 'invalid-data', 'Data not found', array( 'status' => 404 ) );
+			return new \WP_REST_Response(
+				array(
+					'status'  => false,
+					'code'    => 403,
+					'message' => $message,
+					'data'	  => array()
+				)
+			);
+		} else {
+
+			return new \WP_REST_Response(
+				array(
+					'status'  => false,
+					'code'    => 404,
+					'message' => 'invalid-data - Data not found',
+					'data'	  => array()
+				)
+			);
+
+		}
 
 	}
 
@@ -82,14 +115,14 @@ class Rest {
 	 * @since    1.0.0
 	 * @return   WP_REST_Response
 	 */
-	public static function respond_success( $body = null, $status = 200 ) {
+	public static function respond_success( $status = null, $body = null, $message = null, $code = 200 ) {
 
 		return new \WP_REST_Response(
 			array(
-				'message' 	 => $body,
-				'data'		 => array(
-					'status' => $status
-				)
+				'status'  => $status,
+				'code'    => $code,
+				'message' => $message,
+				'data'	  => $body
 			)
 		);
 
