@@ -117,6 +117,8 @@ class Sejoli_Rest_Api {
 		require_once SEJOLI_REST_API_DIR . 'rest/main.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/products.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/sales.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/order.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/license.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/affiliates.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/donation.php';
 
@@ -166,6 +168,12 @@ class Sejoli_Rest_Api {
 
 		$sales = new Sejoli_Rest_Api\Rest\Sales();
 		$this->loader->add_action( 'rest_api_init',	$sales, 'do_register', 10 );
+
+		$order = new Sejoli_Rest_Api\Rest\Order();
+		$this->loader->add_action( 'rest_api_init',	$order, 'do_register', 10 );
+
+		$license = new Sejoli_Rest_Api\Rest\License();
+		$this->loader->add_action( 'rest_api_init',	$license, 'do_register', 10 );
 
 		$affiliates = new Sejoli_Rest_Api\Rest\Affiliates();
 		$this->loader->add_action( 'rest_api_init',	$affiliates, 'do_register', 10 );

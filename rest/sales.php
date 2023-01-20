@@ -17,46 +17,66 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 		$routes = array(
 			'sales' => array(
 				'endpoint'			  => '/sales',
-	    		'methods'		      => 'GET',
-	    		'callback'			  => array( $this, 'get_sales_data' ),
-	    		'permission_callback' => '__return_true',
+	    		'methods'		      => \WP_REST_Server::CREATABLE,
+	    		'callback'			  => array( $this, 'sejoli_rest_get_sales_data' ),
+	    		'permission_callback' => function () {
+	                return is_user_logged_in();
+	            },
+	            'args' => array(
+					'start' => array(
+						'type' => 'number',
+					),
+					'length' => array(
+						'type' => 'number',
+					),
+					'sort' => array(
+						'type' => 'string',
+					),
+	                'sort_by' => array(
+						'type' => 'string',
+					),
+					'item_status' => array(
+						'type' => 'string',
+					),
+	                'search' => array(
+						'type' => 'string',
+					),
+					'product_id' => array(
+						'type' => 'number',
+					),
+					'user_id' => array(
+						'type' => 'number',
+					),
+					'affiliate_id' => array(
+						'type' => 'number',
+					),
+					'coupon_id' => array(
+						'type' => 'number',
+					),
+					'payment_gateway' => array(
+						'type' => 'string',
+					),
+					'status' => array(
+						'type' => 'string',
+					),
+					'type' => array(
+						'type' => 'string',
+					)
+				)
 	    	),
 	    	'sales_detail' => array(
-				'endpoint'			  => '/sales/(?P<order_id>\d+)',
-	    		'methods'		      => 'GET',
-	    		'callback'			  => array( $this, 'get_sales_single_data' ),
-	    		'permission_callback' => '__return_true',
+				'endpoint'			  => '/sales/detail',
+	    		'methods'		      => \WP_REST_Server::READABLE,
+	    		'callback'			  => array( $this, 'sejoli_rest_get_sales_single_data' ),
+	    		'permission_callback' => function () {
+	                return is_user_logged_in();
+	            },
+	            'args' => array(
+					'order_id' => array(
+						'type' => 'number',
+					),
+				)
 	    	),
-	    	'sales_by_user' => array(
-				'endpoint'			  => '/sales/user/(?P<user_id>\d+)',
-	    		'methods'			  => 'GET',
-	    		'callback'			  => array( $this, 'get_sales_data_by_user' ),
-	    		'permission_callback' => '__return_true',
-	    	),
-	    	'sales_by_affiliate' => array(
-				'endpoint'			  => '/sales/affiliate/(?P<affiliate_id>\d+)',
-	    		'methods'			  => 'GET',
-	    		'callback'			  => array( $this, 'get_sales_data_by_affiliate' ),
-	    		'permission_callback' => '__return_true',
-	    	),
-	    	'sales_by_product' => array(
-				'endpoint'			  => '/sales/product/(?P<product_id>\d+)',
-	    		'methods'			  => 'GET',
-	    		'callback'			  => array( $this, 'get_sales_data_by_product' ),
-	    		'permission_callback' => '__return_true',
-	    	),
-	    	'sales_by_status' => array(
-				'endpoint'			  => '/sales/status/(?P<status>[a-zA-Z0-9-]+)',
-	    		'methods'			  => 'GET',
-	    		'callback'			  => array( $this, 'get_sales_data_by_status' ),
-	    		'permission_callback' => '__return_true',
-	    	),
-	    	'sales_by_order_type' => array(
-				'endpoint'			  => '/sales/type/(?P<order_type>[a-zA-Z0-9-]+)',
-	    		'methods'			  => 'GET',
-	    		'callback'			  => array( $this, 'get_sales_data_by_order_type' ),
-	    		'permission_callback' => '__return_true',
-	    	)
 	    );
 
 	    self::register_routes( $routes );
@@ -69,27 +89,51 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 	 * @return  array|WP_Error
 	 * @since   1.0.0
 	 */
-	public function get_sales_data( $data ) {
+	public function sejoli_rest_get_sales_data( \WP_REST_Request $request ) {
 
-		$params = array(
-            'product_id'      => NULL,
+		$_request = wp_parse_args( $request->get_body_params(), [
+			'start'  		  => NULL,
+	        'length' 		  => NULL,
+	        'order'  		  => NULL,
+	        'filter' 		  => NULL,
+	        'product_id'      => NULL,
 	        'user_id'         => NULL,
 	        'affiliate_id'    => NULL,
 	        'coupon_id'       => NULL,
 	        'payment_gateway' => NULL,
 	        'status'          => NULL,
 	        'type'            => NULL
+		] );
+
+		$args = array(
+            'product_id'      => $_request['product_id'],
+	        'user_id'         => $_request['user_id'],
+	        'affiliate_id'    => $_request['affiliate_id'],
+	        'coupon_id'       => $_request['coupon_id'],
+	        'payment_gateway' => $_request['payment_gateway'],
+	        'status'          => $_request['status'],
+	        'type'            => $_request['type']
         );
 
-        $order = sejolisa_get_orders($params);
+        $order = sejolisa_get_orders($args, $_request);
 
-		if( ! is_wp_error( $order ) ) {
+		if( ! is_wp_error( $order ) ) :
 
-			return $order;
+			if( true === $order['valid'] ) :
 
-		}
+				return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
-		return $this->respond_error();
+			else:
+
+				return $this->respond_error( 'invalid-data' );
+
+			endif;
+
+		else:
+			
+			return $this->respond_error( 'invalid-data' );
+		
+		endif;
 
 	}
 
@@ -99,21 +143,35 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 	 * @return  array|WP_Error
 	 * @since   1.0.0
 	 */
-	public function get_sales_single_data( $data ) {
+	public function sejoli_rest_get_sales_single_data( \WP_REST_Request $request ) {
+
+		$_request = wp_parse_args( $request->get_params(), [
+			'order_id' => NULL,
+		] );
 
 		$params = array(
-            'ID' => $data['order_id']
+            'ID' => $_request['order_id']
         );
 
         $order = sejolisa_get_order($params);
 
-		if( ! is_wp_error( $order ) ) {
+		if( ! is_wp_error( $order ) ) :
 
-			return $order;
+			if( true === $order['valid'] ) :
 
-		}
+				return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
-		return $this->respond_error();
+			else:
+
+				return $this->respond_error( 'invalid-data' );
+
+			endif;
+
+		else:
+			
+			return $this->respond_error( 'invalid-data' );
+		
+		endif;
 
 	}
 
@@ -123,7 +181,7 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 	 * @return  array|WP_Error
 	 * @since   1.0.0
 	 */
-	public function get_sales_data_by_user( $data ) {
+	public function get_sales_data_by_customer( $data ) {
 
 		$params = array(
             'product_id'      => NULL,
@@ -139,11 +197,13 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 
 		if( ! is_wp_error( $order ) ) {
 
-			return $order;
+			return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
+		} else {
+			
+			return $this->respond_error( 'invalid-data' );
+		
 		}
-
-		return $this->respond_error();
 
 	}
 
@@ -169,11 +229,13 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 
 		if( ! is_wp_error( $order ) ) {
 
-			return $order;
+			return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
+		} else {
+			
+			return $this->respond_error( 'invalid-data' );
+		
 		}
-
-		return $this->respond_error();
 
 	}
 
@@ -199,11 +261,13 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 
 		if( ! is_wp_error( $order ) ) {
 
-			return $order;
+			return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
+		} else {
+			
+			return $this->respond_error( 'invalid-data' );
+		
 		}
-
-		return $this->respond_error();
 
 	}
 
@@ -229,11 +293,13 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 
 		if( ! is_wp_error( $order ) ) {
 
-			return $order;
+			return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
+		} else {
+			
+			return $this->respond_error( 'invalid-data' );
+		
 		}
-
-		return $this->respond_error();
 
 	}
 
@@ -259,11 +325,13 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 
 		if( ! is_wp_error( $order ) ) {
 
-			return $order;
+			return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
+		} else {
+			
+			return $this->respond_error( 'invalid-data' );
+		
 		}
-
-		return $this->respond_error();
 
 	}
 

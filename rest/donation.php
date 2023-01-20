@@ -15,11 +15,18 @@ class Donation extends \Sejoli_Rest_Api\Rest {
 	public function do_register() {
 
 		$routes = array(
-			'sales' => array(
+			'donation' => array(
 				'endpoint'			  => '/donation',
-	    		'methods'		      => 'GET',
-	    		'callback'			  => array( $this, 'get_donation_data' ),
-	    		'permission_callback' => '__return_true',
+	    		'methods'		      => \WP_REST_Server::READABLE,
+	    		'callback'			  => array( $this, 'sejoli_rest_get_donation_data' ),
+	    		'permission_callback' => function () {
+	                return is_user_logged_in();
+	            },
+	            'args' => array(
+					'limit' => array(
+						'type' => 'number',
+					),
+				)
 	    	)
 	    );
 
@@ -33,12 +40,16 @@ class Donation extends \Sejoli_Rest_Api\Rest {
 	 * @return  array|WP_Error
 	 * @since   1.0.0
 	 */
-	public function get_donation_data( $data ) {
+	public function sejoli_rest_get_donation_data( \WP_REST_Request $request ) {
+
+		$_request = wp_parse_args( $request->get_params(), [
+			'limit' => NULL,
+		] );
 
 		$args = array( 
 		    'post_type'   => 'sejoli-product', 
 		    'post_status' => 'publish', 
-		    'nopaging'    => true ,
+		    'posts_per_page' => $_request['limit'],
 		    'meta_query'  => array(
 		        array(
 		            'key'     => '_donation_active',
@@ -94,36 +105,49 @@ class Donation extends \Sejoli_Rest_Api\Rest {
 				$product_enable_quantity = boolval(carbon_get_post_meta($product_id, 'enable_quantity'));
 				$product_access_code 	 = carbon_get_post_meta($product_id, 'coupon_access_checkout');
 
-		        $output[] = array( 
-		        	'id' 				=> $product_id, 
-		        	'author' 			=> $post->post_author,
-		        	'date_created' 		=> $post->post_date,
-		        	'date_created_gmt' 	=> $post->post_date_gmt,
-		        	'date_modified' 	=> $post->post_modified,
-		        	'date_modified_gmt' => $post->post_modified_gmt,
-		        	'title' 			=> $post->post_title,
-		        	'content' 			=> $post->post_content,
-		        	'excerpt' 			=> $post->post_excerpt,
-		        	'slug' 				=> $post->post_name,
-		        	'permalink' 		=> $post->guid,
-		        	'status' 			=> $post->post_status,
-		        	'product_thumbnail' => $featured_img_url,
-		        	'affiliate'			=> $product->affiliate,
-		        	'donation'			=> $product->donation,
-		        	'donation_progress' => array(
-		        								'percentage' => $progress['percent'].'%',
-		        								'total'	     => $progress['total']
-		        							),
-		        	'donation_users'    => $donatur
+		        $output = array(
+		        	'valid' => true,
+		        	'products' => array(
+			        	'id' 				=> $product_id, 
+			        	'author' 			=> $post->post_author,
+			        	'date_created' 		=> $post->post_date,
+			        	'date_created_gmt' 	=> $post->post_date_gmt,
+			        	'date_modified' 	=> $post->post_modified,
+			        	'date_modified_gmt' => $post->post_modified_gmt,
+			        	'title' 			=> $post->post_title,
+			        	'content' 			=> $post->post_content,
+			        	'excerpt' 			=> $post->post_excerpt,
+			        	'slug' 				=> $post->post_name,
+			        	'permalink' 		=> $post->guid,
+			        	'status' 			=> $post->post_status,
+			        	'product_thumbnail' => $featured_img_url,
+			        	'affiliate'			=> $product->affiliate,
+			        	'donation'			=> $product->donation,
+			        	'donation_progress' => array(
+			        								'percentage' => $progress['percent'].'%',
+			        								'total'	     => $progress['total']
+			        							),
+			        	'donation_users'    => $donatur
+			        )
 		        );
 		    
 		    }
 		    
-		    return wp_send_json( $output ); // getting data in json format.
+		    if( !empty($output) ):
 
+		    	return $this->respond_success( true, $output, 'Data successfully found', 200 );
+
+		    else:
+
+		    	return $this->respond_error( 'invalid-data' );
+
+		    endif;
+
+		} else {
+			
+			return $this->respond_error( 'invalid-data' );
+		
 		}
-
-		return $this->respond_error();
 
 	}     
 
