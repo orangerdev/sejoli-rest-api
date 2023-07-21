@@ -1,5 +1,4 @@
 <?php
-
 namespace Sejoli_Rest_Api;
 
 /**

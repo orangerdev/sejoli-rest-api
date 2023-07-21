@@ -115,19 +115,17 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 	        'type'            => $_request['type']
         );
 
-        $order = sejolisa_get_orders($args, $_request);
+        $current_user = wp_get_current_user();
 
-		if( ! is_wp_error( $order ) ) :
+	    if ( isset( $current_user->ID ) && $current_user->ID > 0 && $_request['user_id'] === NULL ) :
+	        $args['user_id'] = $current_user->ID;
+	    endif;
 
-			if( true === $order['valid'] ) :
+        $order = sejolisa_get_orders( $args, $_request );
 
-				return $this->respond_success( true, $order, 'Data successfully found', 200 );
+		if( ! is_wp_error( $order ) && true === $order['valid'] ) :
 
-			else:
-
-				return $this->respond_error( 'invalid-data' );
-
-			endif;
+			return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
 		else:
 			
@@ -153,19 +151,11 @@ class Sales extends \Sejoli_Rest_Api\Rest {
             'ID' => $_request['order_id']
         );
 
-        $order = sejolisa_get_order($params);
+        $order = sejolisa_get_order( $params );
 
-		if( ! is_wp_error( $order ) ) :
+		if( ! is_wp_error( $order ) && true === $order['valid'] ) :
 
-			if( true === $order['valid'] ) :
-
-				return $this->respond_success( true, $order, 'Data successfully found', 200 );
-
-			else:
-
-				return $this->respond_error( 'invalid-data' );
-
-			endif;
+			return $this->respond_success( true, $order, 'Data successfully found', 200 );
 
 		else:
 			
@@ -173,166 +163,6 @@ class Sales extends \Sejoli_Rest_Api\Rest {
 		
 		endif;
 
-	}
-
-	/**
-	 * Get sales data by user rest request
-	 * @param 	$data data from api request
-	 * @return  array|WP_Error
-	 * @since   1.0.0
-	 */
-	public function get_sales_data_by_customer( $data ) {
-
-		$params = array(
-            'product_id'      => NULL,
-	        'user_id'         => $data['user_id'],
-	        'affiliate_id'    => NULL,
-	        'coupon_id'       => NULL,
-	        'payment_gateway' => NULL,
-	        'status'          => NULL,
-	        'type'            => NULL
-        );
-
-        $order = sejolisa_get_orders($params);
-
-		if( ! is_wp_error( $order ) ) {
-
-			return $this->respond_success( true, $order, 'Data successfully found', 200 );
-
-		} else {
-			
-			return $this->respond_error( 'invalid-data' );
-		
-		}
-
-	}
-
-	/**
-	 * Get sales data by affiliate rest request
-	 * @param 	$data data from api request
-	 * @return  array|WP_Error
-	 * @since   1.0.0
-	 */
-	public function get_sales_data_by_affiliate( $data ) {
-
-		$params = array(
-            'product_id'      => NULL,
-	        'user_id'         => NULL,
-	        'affiliate_id'    => $data['affiliate_id'],
-	        'coupon_id'       => NULL,
-	        'payment_gateway' => NULL,
-	        'status'          => NULL,
-	        'type'            => NULL
-        );
-
-        $order = sejolisa_get_orders($params);
-
-		if( ! is_wp_error( $order ) ) {
-
-			return $this->respond_success( true, $order, 'Data successfully found', 200 );
-
-		} else {
-			
-			return $this->respond_error( 'invalid-data' );
-		
-		}
-
-	}
-
-	/**
-	 * Get sales data by product rest request
-	 * @param 	$data data from api request
-	 * @return  array|WP_Error
-	 * @since   1.0.0
-	 */
-	public function get_sales_data_by_product( $data ) {
-
-		$params = array(
-            'product_id'      => $data['product_id'],
-	        'user_id'         => NULL,
-	        'affiliate_id'    => NULL,
-	        'coupon_id'       => NULL,
-	        'payment_gateway' => NULL,
-	        'status'          => NULL,
-	        'type'            => NULL
-        );
-
-        $order = sejolisa_get_orders($params);
-
-		if( ! is_wp_error( $order ) ) {
-
-			return $this->respond_success( true, $order, 'Data successfully found', 200 );
-
-		} else {
-			
-			return $this->respond_error( 'invalid-data' );
-		
-		}
-
-	}
-
-	/**
-	 * Get sales data by status rest request
-	 * @param 	$data data from api request
-	 * @return  array|WP_Error
-	 * @since   1.0.0
-	 */
-	public function get_sales_data_by_status( $data ) {
-
-		$params = array(
-            'product_id'      => NULL,
-	        'user_id'         => NULL,
-	        'affiliate_id'    => NULL,
-	        'coupon_id'       => NULL,
-	        'payment_gateway' => NULL,
-	        'status'          => $data['status'],
-	        'type'            => NULL
-        );
-
-        $order = sejolisa_get_orders($params);
-
-		if( ! is_wp_error( $order ) ) {
-
-			return $this->respond_success( true, $order, 'Data successfully found', 200 );
-
-		} else {
-			
-			return $this->respond_error( 'invalid-data' );
-		
-		}
-
-	}
-
-	/**
-	 * Get sales data by status rest request
-	 * @param 	$data data from api request
-	 * @return  array|WP_Error
-	 * @since   1.0.0
-	 */
-	public function get_sales_data_by_order_type( $data ) {
-
-		$params = array(
-            'product_id'      => NULL,
-	        'user_id'         => NULL,
-	        'affiliate_id'    => NULL,
-	        'coupon_id'       => NULL,
-	        'payment_gateway' => NULL,
-	        'status'          => NULL,
-	        'type'            => $data['order_type']
-        );
-
-        $order = sejolisa_get_orders($params);
-
-		if( ! is_wp_error( $order ) ) {
-
-			return $this->respond_success( true, $order, 'Data successfully found', 200 );
-
-		} else {
-			
-			return $this->respond_error( 'invalid-data' );
-		
-		}
-
-	}
+	}	
 
 }

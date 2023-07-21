@@ -47,10 +47,10 @@ class Donation extends \Sejoli_Rest_Api\Rest {
 		] );
 
 		$args = array( 
-		    'post_type'   => 'sejoli-product', 
-		    'post_status' => 'publish', 
+		    'post_type'      => 'sejoli-product', 
+		    'post_status'    => 'publish', 
 		    'posts_per_page' => $_request['limit'],
-		    'meta_query'  => array(
+		    'meta_query'     => array(
 		        array(
 		            'key'     => '_donation_active',
 		            'value'   => 'yes',
@@ -59,26 +59,26 @@ class Donation extends \Sejoli_Rest_Api\Rest {
 		    ),
 		);
 
-	    $query = new \WP_Query($args);
+	    $query = new \WP_Query( $args );
 	    $posts = $query->get_posts();
 
-		if( ! is_wp_error( $posts ) ) {
+		if( ! is_wp_error( $posts ) ) :
 
 			$output = array();
-		    foreach( $posts as $post ) {
+		    foreach( $posts as $post ) :
 		        
 		        $product_id   = $post->ID;
-		        $product      = sejolisa_get_product($product_id);
-		        $progress     = sejolisa_get_donation_progress($product_id);
-		        $donatur_list = sejolisa_get_donatur_list($product_id);
+		        $product      = sejolisa_get_product( $product_id );
+		        $progress     = sejolisa_get_donation_progress( $product_id );
+		        $donatur_list = sejolisa_get_donatur_list( $product_id );
 
-		        foreach($donatur_list as $list) :
+		        foreach( $donatur_list as $list ) :
 
 		        	$donatur_name   = $list['name'];
 	                $donatur_time   = $list['human_time'];
 	                $total_donation = $list['total'];
 
-	                if($list !== ""):
+	                if( $list !== "" ):
 		                
 		                $donatur[] = [
 		                    'name'  => $donatur_name,
@@ -131,9 +131,9 @@ class Donation extends \Sejoli_Rest_Api\Rest {
 			        )
 		        );
 		    
-		    }
+		    endforeach;
 		    
-		    if( !empty($output) ):
+		    if( !empty( $output ) ) :
 
 		    	return $this->respond_success( true, $output, 'Data successfully found', 200 );
 
@@ -143,11 +143,11 @@ class Donation extends \Sejoli_Rest_Api\Rest {
 
 		    endif;
 
-		} else {
+		else:
 			
 			return $this->respond_error( 'invalid-data' );
 		
-		}
+		endif;
 
 	}     
 

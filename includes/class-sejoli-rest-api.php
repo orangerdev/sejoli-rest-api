@@ -121,6 +121,16 @@ class Sejoli_Rest_Api {
 		require_once SEJOLI_REST_API_DIR . 'rest/license.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/affiliates.php';
 		require_once SEJOLI_REST_API_DIR . 'rest/donation.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/subscription.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/leaderboard.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/access.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/payment.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/shipment.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/coupon.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/jv.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/rewards.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/bump-sales.php';
+		require_once SEJOLI_REST_API_DIR . 'rest/wallet.php';
 
 		/**
 		 * The class responsible for defining CLI command and function
@@ -180,6 +190,36 @@ class Sejoli_Rest_Api {
 
 		$donation = new Sejoli_Rest_Api\Rest\Donation();
 		$this->loader->add_action( 'rest_api_init',	$donation, 'do_register', 10 );
+
+		$subscription = new Sejoli_Rest_Api\Rest\Subscription();
+		$this->loader->add_action( 'rest_api_init',	$subscription, 'do_register', 10 );
+
+		$leaderboard = new Sejoli_Rest_Api\Rest\Leaderboard();
+		$this->loader->add_action( 'rest_api_init',	$leaderboard, 'do_register', 10 );
+
+		$access = new Sejoli_Rest_Api\Rest\Access();
+		$this->loader->add_action( 'rest_api_init',	$access, 'do_register', 10 );
+
+		$payment = new Sejoli_Rest_Api\Rest\Payment();
+		$this->loader->add_action( 'rest_api_init',	$payment, 'do_register', 10 );
+
+		$shipment = new Sejoli_Rest_Api\Rest\Shipment();
+		$this->loader->add_action( 'rest_api_init',	$shipment, 'do_register', 10 );
+
+		$coupon = new Sejoli_Rest_Api\Rest\Coupon();
+		$this->loader->add_action( 'rest_api_init',	$coupon, 'do_register', 10 );
+
+		$jv = new Sejoli_Rest_Api\Rest\JointVenture();
+		$this->loader->add_action( 'rest_api_init',	$jv, 'do_register', 10 );
+
+		$rewards = new Sejoli_Rest_Api\Rest\Rewards();
+		$this->loader->add_action( 'rest_api_init',	$rewards, 'do_register', 10 );
+
+		$bump_sales = new Sejoli_Rest_Api\Rest\BumpSales();
+		$this->loader->add_action( 'rest_api_init',	$bump_sales, 'do_register', 10 );
+
+		$wallet = new Sejoli_Rest_Api\Rest\Wallet();
+		$this->loader->add_action( 'rest_api_init',	$wallet, 'do_register', 10 );
 
 	}
 

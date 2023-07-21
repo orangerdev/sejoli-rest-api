@@ -49,7 +49,23 @@ class License extends \Sejoli_Rest_Api\Rest {
 						'type' => 'string',
 					),
 				)
-	    	)
+	    	),
+	    	'license' => array(
+				'endpoint'			  => '/license',
+	    		'methods'		      => \WP_REST_Server::READABLE,
+	    		'callback'			  => array( $this, 'sejoli_rest_get_license_data' ),
+	    		'permission_callback' => function () {
+	                return is_user_logged_in();
+	            },
+	            'args' => array(
+					'user_id' => array(
+						'type' => 'number',
+					),
+					'status' => array(
+						'type' => 'string',
+					)
+				)
+	    	),
 	    );
 
 	    self::register_routes( $routes );
@@ -199,6 +215,43 @@ class License extends \Sejoli_Rest_Api\Rest {
 
 			return $this->respond_error( 'invalid-data' );
 
+		endif;
+
+	}
+
+	/**
+	 * Get license data by user rest request
+	 * @param 	$data data from api request
+	 * @return  array|WP_Error
+	 * @since   1.0.0
+	 */
+	public function sejoli_rest_get_license_data( \WP_REST_Request $request ) {
+
+		$_request = wp_parse_args( $request->get_params(), [
+			'user_id' => NULL,
+			'status'  => NULL
+		] );
+
+        $data = [];
+
+        $current_user = wp_get_current_user();
+
+        if ( isset( $current_user->ID ) && $current_user->ID > 0 && $_request['user_id'] === NULL ) :
+            $_request['user_id'] = $current_user->ID;
+        endif;
+
+        $response = sejolisa_get_licenses( $_request );
+
+        if( false !== $response['valid'] ) :
+        
+            $data = $response['licenses'];
+
+			return $this->respond_success( true, $data, 'Data successfully found', 200 );
+
+		else:
+			
+			return $this->respond_error( 'invalid-data' );
+		
 		endif;
 
 	}

@@ -163,7 +163,7 @@ class Order extends \Sejoli_Rest_Api\Rest {
 
             $current_user = wp_get_current_user();
 
-            if ( isset( $current_user->ID ) && $current_user->ID > 0 ) :
+            if ( isset( $current_user->ID ) && $current_user->ID > 0 && $_request['user_id'] === NULL ) :
                 $args['user_id'] = $current_user->ID;
             endif;
 
@@ -217,10 +217,10 @@ class Order extends \Sejoli_Rest_Api\Rest {
                 endif;
 
                 $response = [
-                    'valid'  => true,
-                    'info'   => $messages,
+                    'valid'         => true,
+                    'info'          => $messages,
                     'redirect_link' => site_url('checkout/loading?order_id='.$d_order['ID']),
-                    'orders' => $d_order
+                    'orders'        => $d_order
                 ];
 
                 if( true === $response['valid'] ) :
@@ -269,11 +269,11 @@ class Order extends \Sejoli_Rest_Api\Rest {
 			'order_id'        => $_request['order_id']
         ] );
 
-		if(is_array($args)) :
+		if( is_array($args) ) :
 
             $current_user = wp_get_current_user();
 
-            if ( isset( $current_user->ID ) && $current_user->ID > 0 ) :
+            if ( isset( $current_user->ID ) && $current_user->ID > 0 && $_request['user_id'] === NULL ) :
                 $args['user_id'] = $current_user->ID;
             endif;
 
@@ -327,10 +327,10 @@ class Order extends \Sejoli_Rest_Api\Rest {
                 endif;
 
                 $response = [
-                    'valid'  => true,
-                    'info'   => $messages,
+                    'valid'         => true,
+                    'info'          => $messages,
                     'redirect_link' => site_url('checkout/loading?order_id='.$d_order['ID']),
-                    'orders' => $d_order
+                    'orders'        => $d_order
                 ];
 
                 if( true === $response['valid'] ) :

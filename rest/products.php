@@ -68,10 +68,10 @@ class Products extends \Sejoli_Rest_Api\Rest {
 	    $query = new \WP_Query($args);
 	    $posts = $query->get_posts();
 
-		if( ! is_wp_error( $posts ) ) {
+		if( ! is_wp_error( $posts ) ) :
 
 			$output = array();
-		    foreach( $posts as $post ) {
+		    foreach( $posts as $post ) :
 		        
 		        $product_id              = $post->ID;
 		        $product                 = sejolisa_get_product($product_id);
@@ -154,7 +154,8 @@ class Products extends \Sejoli_Rest_Api\Rest {
 			        							)
 			        )
 			    );
-		    }
+
+		    endforeach;
 		    
 		    if( !empty($output) ):
 
@@ -166,11 +167,11 @@ class Products extends \Sejoli_Rest_Api\Rest {
 
 		    endif;
 
-		} else {
+		else:
 			
 			return $this->respond_error( 'invalid-data' );
 		
-		}
+		endif;
 
 	}
 
@@ -195,10 +196,10 @@ class Products extends \Sejoli_Rest_Api\Rest {
 	    $query = new \WP_Query($args);
 	    $posts = $query->get_posts();
 
-		if( ! is_wp_error( $posts ) ) {
+		if( ! is_wp_error( $posts ) ) :
 
 			$output = array();
-		    foreach( $posts as $post ) {
+		    foreach( $posts as $post ) :
 		        
 		        $product_id              = $post->ID;
 		        $product                 = sejolisa_get_product($product_id);
@@ -281,7 +282,8 @@ class Products extends \Sejoli_Rest_Api\Rest {
 			        							)
 			        )
 			    );
-		    }
+			    
+		    endforeach;
 		    
 		    if( !empty($output) ):
 
@@ -293,11 +295,11 @@ class Products extends \Sejoli_Rest_Api\Rest {
 
 		    endif;
 
-		} else {
+		else:
 			
 			return $this->respond_error( 'invalid-data' );
 		
-		}
+		endif;
 
 	}
 
